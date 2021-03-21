@@ -13,7 +13,7 @@
 #
 # Copyright Buildbot Team Members
 
-from urllib.parse import urlparse
+import re
 
 from twisted.internet import defer
 
@@ -130,24 +130,9 @@ class BitbucketStatusPush(ReporterBase):
                     https://api.bitbucket.org/2.0/repositories/OWNER/REPONAME
         :return: owner, repo: The owner of the repository and the repository name
         """
-        parsed = urlparse(repourl)
+        m = re.search(r"^(?:git@|ssh://git@|https://(?:api\.)?)bitbucket\.\w+"
+                      r"(?:[:/])(?:2\.0/repositories/)?(.+)/(.+(?=\.git)|.+)",
+                      repourl)
+        assert m is not None, 'OWNER/REPONAME is expected'
 
-        base_parsed = urlparse(_BASE_URL)
-        if parsed.path.startswith(base_parsed.path):
-            path = parsed.path.replace(base_parsed.path, "")[1:]
-        elif parsed.scheme:
-            path = parsed.path[1:]
-        else:
-            # we assume git@host:owner/repo.git here
-            path = parsed.path.split(':', 1)[-1]
-
-        if path.endswith('.git'):
-            path = path[:-4]
-        while path.endswith('/'):
-            path = path[:-1]
-
-        parts = path.split('/')
-
-        assert len(parts) == 2, 'OWNER/REPONAME is expected'
-
-        return parts
+        return list(m.groups())

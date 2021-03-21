@@ -38,7 +38,7 @@ class TestBitbucketStatusPush(TestReactorMixin, unittest.TestCase, ConfigErrorsM
         self.setUpTestReactor()
 
         self.setup_reporter_test()
-        self.reporter_test_repo = 'https://example.org/user/repo'
+        self.reporter_test_repo = 'https://bitbucket.org/user/repo'
 
         self.master = fakemaster.make_master(self, wantData=True, wantDb=True,
                                              wantMq=True)
